@@ -100,8 +100,10 @@ func main() {
 		fmt.Println()
 	}
 	if *diagMode {
+		fmt.Printf("\n-------- Diagnostics --------\n")
 		for _, light := range lights {
-			fmt.Printf("%s  : %s - %s\n", light.Glyph, light.Name, light.Diagnostic)
+			light.Color.Printf("%s", light.Glyph)
+			fmt.Printf("  : %s - %s\n", light.Name, light.Diagnostic)
 		}
 	}
 }
