@@ -12,10 +12,11 @@ import (
 )
 
 type Dashlight struct {
-	Name       string
-	Glyph      string
-	Diagnostic string
-	Color      *color.Color
+	Name        string
+	Glyph       string
+	Diagnostic  string
+	Color       *color.Color
+	UnsetString string
 }
 
 var colorMap = map[string]color.Attribute{
@@ -56,10 +57,18 @@ var colorMap = map[string]color.Attribute{
 
 var diagMode *bool
 var listColorMode *bool
+var clearMode *bool
 
 func init() {
 	diagMode = flag.Bool("diag", false, "display diagnostic information, if provided.")
 	listColorMode = flag.Bool("listcolors", false, "show supported color attributes.")
+	clearMode = flag.Bool("clear", false, "eval code to clear set dashlights.")
+}
+
+func displayClearCodes(lights *[]Dashlight) {
+	for _, light := range *lights {
+		fmt.Println(light.UnsetString)
+	}
 }
 
 func displayColorList() {
@@ -90,6 +99,11 @@ func main() {
 
 	for _, env := range os.Environ() {
 		parseDashlightFromEnv(&lights, env)
+	}
+
+	if *clearMode {
+		displayClearCodes(&lights)
+		os.Exit(0)
 	}
 
 	for _, light := range lights {
@@ -130,10 +144,11 @@ func parseDashlightFromEnv(lights *[]Dashlight, env string) {
 			dashColor.Add(colorMap[colorstr])
 		}
 		*lights = append(*lights, Dashlight{
-			Name:       name,
-			Glyph:      glyph,
-			Diagnostic: diagnostic,
-			Color:      dashColor,
+			Name:        name,
+			Glyph:       glyph,
+			Diagnostic:  diagnostic,
+			Color:       dashColor,
+			UnsetString: "unset " + dashvar,
 		})
 	}
 }
