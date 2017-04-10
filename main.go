@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io"
 	"os"
 	"sort"
 	"strconv"
@@ -65,33 +66,41 @@ func init() {
 	clearMode = flag.Bool("clear", false, "eval code to clear set dashlights.")
 }
 
-func displayClearCodes(lights *[]Dashlight) {
+func Printf(w io.Writer, format string, args ...interface{}) {
+	fmt.Fprintf(w, format, args...)
+}
+
+func Println(w io.Writer, line string) {
+	fmt.Fprintln(w, line)
+}
+
+func displayClearCodes(w io.Writer, lights *[]Dashlight) {
 	for _, light := range *lights {
-		fmt.Println(light.UnsetString)
+		Println(w, light.UnsetString)
 	}
 }
 
-func displayColorList() {
+func displayColorList(w io.Writer) {
 	keys := make([]string, 0)
 	for k := range colorMap {
 		keys = append(keys, k)
 	}
 	sizeKeys := len(keys)
 	sort.Strings(keys)
-	fmt.Println("Supported color attributes:")
+	Println(w, "Supported color attributes:")
 	for i, attrib := range keys {
-		fmt.Printf("%s", attrib)
+		Printf(w, "%s", attrib)
 		if i < sizeKeys-1 {
-			fmt.Printf("%s", ", ")
+			Printf(w, "%s", ", ")
 		}
 	}
-	fmt.Println()
+	Println(w, "")
 }
 
 func main() {
 	flag.Parse()
 	if *listColorMode {
-		displayColorList()
+		displayColorList(os.Stdout)
 		os.Exit(0)
 	}
 
@@ -102,12 +111,12 @@ func main() {
 	}
 
 	if *clearMode {
-		displayClearCodes(&lights)
+		displayClearCodes(os.Stdout, &lights)
 		os.Exit(0)
 	}
 
 	for _, light := range lights {
-		light.Color.Printf("%s", light.Glyph)
+		light.Color.Printf("%s ", light.Glyph)
 		fmt.Printf("%s", "  ")
 	}
 	if len(lights) > 0 {
@@ -116,7 +125,7 @@ func main() {
 	if *diagMode {
 		fmt.Printf("\n-------- Diagnostics --------\n")
 		for _, light := range lights {
-			light.Color.Printf("%s", light.Glyph)
+			light.Color.Printf("%s ", light.Glyph)
 			fmt.Printf("  : %s - %s\n", light.Name, light.Diagnostic)
 		}
 	}
@@ -131,6 +140,10 @@ func parseDashlightFromEnv(lights *[]Dashlight, env string) {
 			diagnostic = "No diagnostic info provided."
 		}
 		elements := strings.Split(dashvar, "_")
+		if len(elements) < 3 {
+			// dashvars must minimally be of form: DASHLIGHT_{name}_{utf8hex}
+			return
+		}
 		// begin shifting elements off elements slice, ignore leading DASHLIGHT_ prefix
 		name, elements := elements[1], elements[2:]
 		hexstr, elements := elements[0], elements[1:]
