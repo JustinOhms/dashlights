@@ -1,6 +1,10 @@
 #!/bin/bash
-export DASHLIGHT_FOO_2112_BGWHITE="Foo was here."
-export DASHLIGHT_BAR_1F4A9="Poo was here."
+export DASHLIGHT_FOO_2112_FGHIWHITE="Look, your name in lights!"
+export DASHLIGHT_BAR_1F4A9="Something is rotten in the state of Denmark."
+
+if [ ! -f "./dashlights" ]; then
+  go build -o ./dashlights
+fi
 
 echo "$ ./dashlights"
 ./dashlights
