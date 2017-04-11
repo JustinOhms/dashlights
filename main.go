@@ -97,37 +97,50 @@ func displayColorList(w io.Writer) {
 	Println(w, "")
 }
 
+var lights []Dashlight
+
 func main() {
 	flag.Parse()
+	parseEnviron(os.Environ(), &lights)
+	display(os.Stdout, &lights)
+}
+
+func parseEnviron(environ []string, lights *[]Dashlight) {
+	for _, env := range environ {
+		parseDashlightFromEnv(lights, env)
+	}
+}
+
+func display(w io.Writer, lights *[]Dashlight) {
 	if *listColorMode {
-		displayColorList(os.Stdout)
-		os.Exit(0)
+		displayColorList(w)
+		return
 	}
-
-	var lights []Dashlight
-
-	for _, env := range os.Environ() {
-		parseDashlightFromEnv(&lights, env)
-	}
-
 	if *clearMode {
-		displayClearCodes(os.Stdout, &lights)
-		os.Exit(0)
+		displayClearCodes(w, lights)
+		return
 	}
-
-	for _, light := range lights {
-		light.Color.Printf("%s ", light.Glyph)
-		fmt.Printf("%s", "  ")
-	}
-	if len(lights) > 0 {
-		fmt.Println()
-	}
+	displayDashlights(w, lights)
 	if *diagMode {
-		fmt.Printf("\n-------- Diagnostics --------\n")
-		for _, light := range lights {
-			light.Color.Printf("%s ", light.Glyph)
-			fmt.Printf("  : %s - %s\n", light.Name, light.Diagnostic)
-		}
+		displayDiagnostics(w, lights)
+	}
+}
+
+func displayDashlights(w io.Writer, lights *[]Dashlight) {
+	for _, light := range *lights {
+		lamp := light.Color.SprintfFunc()("%s ", light.Glyph)
+		Printf(w, "%s ", lamp)
+	}
+	if len(*lights) > 0 {
+		Println(w, "")
+	}
+}
+
+func displayDiagnostics(w io.Writer, lights *[]Dashlight) {
+	Printf(w, "\n-------- Diagnostics --------\n")
+	for _, light := range *lights {
+		lamp := light.Color.SprintfFunc()("%s ", light.Glyph)
+		Printf(w, "%s: %s - %s\n", lamp, light.Name, light.Diagnostic)
 	}
 }
 

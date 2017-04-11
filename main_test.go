@@ -103,3 +103,104 @@ func TestDisplayColorList(t *testing.T) {
 		t.Error("Expected to see string 'BGWHITE' in: ", b.String())
 	}
 }
+
+func TestDisplayDiagnostics(t *testing.T) {
+	var b bytes.Buffer
+	lights := make([]Dashlight, 0)
+	parseDashlightFromEnv(&lights, "DASHLIGHT_SZYZYGY_2112_BGWHITE=foo diagnostic")
+	displayDiagnostics(&b, &lights)
+	expectedStr := " SZYZYGY - foo diagnostic"
+	// contains detailed diagnostics for test light
+	if !strings.Contains(b.String(), expectedStr) {
+		t.Errorf("Expected to see '%s' in:\n%s", expectedStr, b.String())
+	}
+	// contains diagnostics header
+	if !strings.Contains(b.String(), "- Diagnostics -") {
+		t.Errorf("Expected to see '%s' in:\n%s", "- Diagnostics -", b.String())
+	}
+}
+
+func TestDisplayDashlights(t *testing.T) {
+	var b bytes.Buffer
+	lights := make([]Dashlight, 0)
+	parseDashlightFromEnv(&lights, "DASHLIGHT_DISPLAY_0021=")
+	parseDashlightFromEnv(&lights, "DASHLIGHT_BAR_25A6=")
+	displayDashlights(&b, &lights)
+	spcCount := strings.Count(b.String(), " ")
+	if spcCount != 4 {
+		t.Errorf("Expected %d spaces in output, got %d", 2, spcCount)
+	}
+}
+
+func TestDefaultFlagStates(t *testing.T) {
+	if *diagMode {
+		t.Error("Diagnostic mode should not start enabled!")
+	}
+	if *listColorMode {
+		t.Error("List color mode should not start enabled!")
+	}
+	if *clearMode {
+		t.Error("Clear mode should not start enabled!")
+	}
+}
+
+func TestListColorModeDisplay(t *testing.T) {
+	*listColorMode = true
+	defer func() { *listColorMode = false }()
+
+	var b bytes.Buffer
+	lights := make([]Dashlight, 0)
+	parseDashlightFromEnv(&lights, "DASHLIGHT_LCM_0021=")
+
+	display(&b, &lights)
+	if !strings.Contains(b.String(), "BGWHITE") {
+		t.Errorf("List mode should contain color attribute keys, found: %s", b.String())
+	}
+}
+
+func TestClearModeDisplay(t *testing.T) {
+	*clearMode = true
+	defer func() { *clearMode = false }()
+
+	var b bytes.Buffer
+	lights := make([]Dashlight, 0)
+	parseDashlightFromEnv(&lights, "DASHLIGHT_CM_0021=")
+
+	display(&b, &lights)
+	expectStr := "unset DASHLIGHT_CM_0021"
+	if !strings.Contains(b.String(), expectStr) {
+		t.Errorf("Clear mode should '%s', found: %s", expectStr, b.String())
+	}
+}
+
+func TestDiagModeDisplay(t *testing.T) {
+	*diagMode = true
+	defer func() { *diagMode = false }()
+
+	var b bytes.Buffer
+	lights := make([]Dashlight, 0)
+	parseDashlightFromEnv(&lights, "DASHLIGHT_DM_0021=bar diagnostic")
+
+	display(&b, &lights)
+	if !strings.Contains(b.String(), lights[0].Glyph) {
+		t.Errorf("Diag mode should lead with dashlight display containing '%s', found: '%s'", lights[0].Glyph, b.String())
+	}
+
+	expectStr := " DM - bar diagnostic"
+	if !strings.Contains(b.String(), expectStr) {
+		t.Errorf("Expected to see '%s' in:\n%s", expectStr, b.String())
+	}
+}
+
+func TestParseEnviron(t *testing.T) {
+	environ := []string{
+		"LC_CTYPE=en_US.UTF-8",
+		"DASHLIGHT_FOO_0021=",
+		"PAGER=less",
+	}
+	lights := make([]Dashlight, 0)
+	parseEnviron(environ, &lights)
+	if len(lights) != 1 {
+		t.Error("Failed to parse from environ key=val strings.")
+	}
+}
