@@ -14,8 +14,8 @@ func typeof(v interface{}) string {
 }
 
 func TestDisplayCodes(t *testing.T) {
-	lights := make([]Dashlight, 0)
-	lights = append(lights, Dashlight{
+	lights := make([]dashlight, 0)
+	lights = append(lights, dashlight{
 		Name:        "foo",
 		Glyph:       "X",
 		Diagnostic:  "",
@@ -27,7 +27,7 @@ func TestDisplayCodes(t *testing.T) {
 	if b.String() != "unset foo\n" {
 		t.Error("Expected 'unset foo\n', got ", b.String())
 	}
-	lights = append(lights, Dashlight{
+	lights = append(lights, dashlight{
 		Name:        "bar",
 		Glyph:       "Y",
 		Diagnostic:  "",
@@ -43,7 +43,7 @@ func TestDisplayCodes(t *testing.T) {
 }
 
 func TestParseDashlightFromEnv(t *testing.T) {
-	lights := make([]Dashlight, 0)
+	lights := make([]dashlight, 0)
 	// missing namespace prefix...
 	parseDashlightFromEnv(&lights, "FOO_2112_BGWHITE=foo")
 	if 0 != len(lights) {
@@ -106,7 +106,7 @@ func TestDisplayColorList(t *testing.T) {
 
 func TestDisplayDiagnostics(t *testing.T) {
 	var b bytes.Buffer
-	lights := make([]Dashlight, 0)
+	lights := make([]dashlight, 0)
 	parseDashlightFromEnv(&lights, "DASHLIGHT_SZYZYGY_2112_BGWHITE=foo diagnostic")
 	displayDiagnostics(&b, &lights)
 	expectedStr := " SZYZYGY - foo diagnostic"
@@ -122,7 +122,7 @@ func TestDisplayDiagnostics(t *testing.T) {
 
 func TestDisplayDashlights(t *testing.T) {
 	var b bytes.Buffer
-	lights := make([]Dashlight, 0)
+	lights := make([]dashlight, 0)
 	parseDashlightFromEnv(&lights, "DASHLIGHT_DISPLAY_0021=")
 	parseDashlightFromEnv(&lights, "DASHLIGHT_BAR_25A6=")
 	displayDashlights(&b, &lights)
@@ -149,7 +149,7 @@ func TestListColorModeDisplay(t *testing.T) {
 	defer func() { *listColorMode = false }()
 
 	var b bytes.Buffer
-	lights := make([]Dashlight, 0)
+	lights := make([]dashlight, 0)
 	parseDashlightFromEnv(&lights, "DASHLIGHT_LCM_0021=")
 
 	display(&b, &lights)
@@ -163,7 +163,7 @@ func TestClearModeDisplay(t *testing.T) {
 	defer func() { *clearMode = false }()
 
 	var b bytes.Buffer
-	lights := make([]Dashlight, 0)
+	lights := make([]dashlight, 0)
 	parseDashlightFromEnv(&lights, "DASHLIGHT_CM_0021=")
 
 	display(&b, &lights)
@@ -178,7 +178,7 @@ func TestDiagModeDisplay(t *testing.T) {
 	defer func() { *diagMode = false }()
 
 	var b bytes.Buffer
-	lights := make([]Dashlight, 0)
+	lights := make([]dashlight, 0)
 	parseDashlightFromEnv(&lights, "DASHLIGHT_DM_0021=bar diagnostic")
 
 	display(&b, &lights)
@@ -198,7 +198,7 @@ func TestParseEnviron(t *testing.T) {
 		"DASHLIGHT_FOO_0021=",
 		"PAGER=less",
 	}
-	lights := make([]Dashlight, 0)
+	lights := make([]dashlight, 0)
 	parseEnviron(environ, &lights)
 	if len(lights) != 1 {
 		t.Error("Failed to parse from environ key=val strings.")

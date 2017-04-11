@@ -12,7 +12,7 @@ import (
 	"github.com/fatih/color"
 )
 
-type Dashlight struct {
+type dashlight struct {
 	Name        string
 	Glyph       string
 	Diagnostic  string
@@ -66,17 +66,17 @@ func init() {
 	clearMode = flag.Bool("clear", false, "eval code to clear set dashlights.")
 }
 
-func Printf(w io.Writer, format string, args ...interface{}) {
+func flexPrintf(w io.Writer, format string, args ...interface{}) {
 	fmt.Fprintf(w, format, args...)
 }
 
-func Println(w io.Writer, line string) {
+func flexPrintln(w io.Writer, line string) {
 	fmt.Fprintln(w, line)
 }
 
-func displayClearCodes(w io.Writer, lights *[]Dashlight) {
+func displayClearCodes(w io.Writer, lights *[]dashlight) {
 	for _, light := range *lights {
-		Println(w, light.UnsetString)
+		flexPrintln(w, light.UnsetString)
 	}
 }
 
@@ -87,17 +87,17 @@ func displayColorList(w io.Writer) {
 	}
 	sizeKeys := len(keys)
 	sort.Strings(keys)
-	Println(w, "Supported color attributes:")
+	flexPrintln(w, "Supported color attributes:")
 	for i, attrib := range keys {
-		Printf(w, "%s", attrib)
+		flexPrintf(w, "%s", attrib)
 		if i < sizeKeys-1 {
-			Printf(w, "%s", ", ")
+			flexPrintf(w, "%s", ", ")
 		}
 	}
-	Println(w, "")
+	flexPrintln(w, "")
 }
 
-var lights []Dashlight
+var lights []dashlight
 
 func main() {
 	flag.Parse()
@@ -105,13 +105,13 @@ func main() {
 	display(os.Stdout, &lights)
 }
 
-func parseEnviron(environ []string, lights *[]Dashlight) {
+func parseEnviron(environ []string, lights *[]dashlight) {
 	for _, env := range environ {
 		parseDashlightFromEnv(lights, env)
 	}
 }
 
-func display(w io.Writer, lights *[]Dashlight) {
+func display(w io.Writer, lights *[]dashlight) {
 	if *listColorMode {
 		displayColorList(w)
 		return
@@ -126,25 +126,25 @@ func display(w io.Writer, lights *[]Dashlight) {
 	}
 }
 
-func displayDashlights(w io.Writer, lights *[]Dashlight) {
+func displayDashlights(w io.Writer, lights *[]dashlight) {
 	for _, light := range *lights {
 		lamp := light.Color.SprintfFunc()("%s ", light.Glyph)
-		Printf(w, "%s ", lamp)
+		flexPrintf(w, "%s ", lamp)
 	}
 	if len(*lights) > 0 {
-		Println(w, "")
+		flexPrintln(w, "")
 	}
 }
 
-func displayDiagnostics(w io.Writer, lights *[]Dashlight) {
-	Printf(w, "\n-------- Diagnostics --------\n")
+func displayDiagnostics(w io.Writer, lights *[]dashlight) {
+	flexPrintf(w, "\n-------- Diagnostics --------\n")
 	for _, light := range *lights {
 		lamp := light.Color.SprintfFunc()("%s ", light.Glyph)
-		Printf(w, "%s: %s - %s\n", lamp, light.Name, light.Diagnostic)
+		flexPrintf(w, "%s: %s - %s\n", lamp, light.Name, light.Diagnostic)
 	}
 }
 
-func parseDashlightFromEnv(lights *[]Dashlight, env string) {
+func parseDashlightFromEnv(lights *[]dashlight, env string) {
 	kv := strings.Split(env, "=")
 	dashvar := kv[0]
 	diagnostic := kv[1]
@@ -169,7 +169,7 @@ func parseDashlightFromEnv(lights *[]Dashlight, env string) {
 		for _, colorstr := range elements {
 			dashColor.Add(colorMap[colorstr])
 		}
-		*lights = append(*lights, Dashlight{
+		*lights = append(*lights, dashlight{
 			Name:        name,
 			Glyph:       glyph,
 			Diagnostic:  diagnostic,
