@@ -9,8 +9,8 @@ turn this:
 
 ```shell
 ~
-❯ export DASHLIGHT_LINK_1F517="VPN is up"
-DASHLIGHT_HEXAGRAM_4DCB_FGYELLOW_BGHIWHITE="get up and stretch a bit"
+❯ export DASHLIGHT_HEXAGRAM_4DCB_FGRED="get up and stretch a bit" DASHLIGHT_LINK_1F517="VPN is up"
+
 ```
 
 into this:
