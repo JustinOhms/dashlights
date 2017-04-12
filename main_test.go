@@ -90,20 +90,6 @@ func TestParseDashlightFromEnv(t *testing.T) {
 	}
 }
 
-func TestDisplayColorList(t *testing.T) {
-	var b bytes.Buffer
-	listLen := len(colorMap)
-	displayColorList(&b)
-	commaCount := strings.Count(b.String(), ",")
-	if commaCount != listLen-1 {
-		t.Errorf("Expected %d commas in colorlist, got %d", listLen-1, commaCount)
-	}
-	// color attributes are listed in UPPER CASE...
-	if !strings.Contains(b.String(), "BGWHITE") {
-		t.Error("Expected to see string 'BGWHITE' in: ", b.String())
-	}
-}
-
 func TestDisplayDiagnostics(t *testing.T) {
 	var b bytes.Buffer
 	lights := make([]dashlight, 0)
@@ -133,20 +119,20 @@ func TestDisplayDashlights(t *testing.T) {
 }
 
 func TestDefaultFlagStates(t *testing.T) {
-	if *diagMode {
+	if args.ObdMode {
 		t.Error("Diagnostic mode should not start enabled!")
 	}
-	if *listColorMode {
+	if args.ListMode {
 		t.Error("List color mode should not start enabled!")
 	}
-	if *clearMode {
+	if args.ClearMode {
 		t.Error("Clear mode should not start enabled!")
 	}
 }
 
 func TestListColorModeDisplay(t *testing.T) {
-	*listColorMode = true
-	defer func() { *listColorMode = false }()
+	args.ListMode = true
+	defer func() { args.ListMode = false }()
 
 	var b bytes.Buffer
 	lights := make([]dashlight, 0)
@@ -159,8 +145,8 @@ func TestListColorModeDisplay(t *testing.T) {
 }
 
 func TestClearModeDisplay(t *testing.T) {
-	*clearMode = true
-	defer func() { *clearMode = false }()
+	args.ClearMode = true
+	defer func() { args.ClearMode = false }()
 
 	var b bytes.Buffer
 	lights := make([]dashlight, 0)
@@ -174,8 +160,8 @@ func TestClearModeDisplay(t *testing.T) {
 }
 
 func TestDiagModeDisplay(t *testing.T) {
-	*diagMode = true
-	defer func() { *diagMode = false }()
+	args.ObdMode = true
+	defer func() { args.ObdMode = false }()
 
 	var b bytes.Buffer
 	lights := make([]dashlight, 0)

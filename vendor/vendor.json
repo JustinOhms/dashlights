@@ -3,6 +3,18 @@
 	"ignore": "test",
 	"package": [
 		{
+			"checksumSHA1": "kjygOPbr5jsND2nU4NJnyyDRVF8=",
+			"path": "github.com/alexflint/go-arg",
+			"revision": "cef6506c97e5731da728c374ff3523e481026423",
+			"revisionTime": "2017-03-30T21:10:29Z"
+		},
+		{
+			"checksumSHA1": "M5vBatiAKUjyLYrb9nS+6QbpEjE=",
+			"path": "github.com/alexflint/go-scalar",
+			"revision": "e80c3b7ed292b052c7083b6fd7154a8422c33f65",
+			"revisionTime": "2017-02-16T02:04:25Z"
+		},
+		{
 			"checksumSHA1": "16fWSep+3jUx8wADdbiTxSHjW14=",
 			"path": "github.com/fatih/color",
 			"revision": "9131ab34cf20d2f6d83fdc67168a5430d1c7dc23",

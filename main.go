@@ -1,14 +1,13 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"io"
 	"os"
-	"sort"
 	"strconv"
 	"strings"
 
+	arg "github.com/alexflint/go-arg"
 	"github.com/fatih/color"
 )
 
@@ -20,50 +19,10 @@ type dashlight struct {
 	UnsetString string
 }
 
-var colorMap = map[string]color.Attribute{
-	"FGBLACK":      color.FgBlack,
-	"FGRED":        color.FgRed,
-	"FGGREEN":      color.FgGreen,
-	"FGYELLOW":     color.FgYellow,
-	"FGBLUE":       color.FgBlue,
-	"FGMAGENTA":    color.FgMagenta,
-	"FGCYAN":       color.FgCyan,
-	"FGWHITE":      color.FgWhite,
-	"FGHIBLACK":    color.FgHiBlack,
-	"FGHIRED":      color.FgHiRed,
-	"FGHIGREEN":    color.FgHiGreen,
-	"FGHIYELLOW":   color.FgHiYellow,
-	"FGHIBLUE":     color.FgHiBlue,
-	"FGHIMAGENTA":  color.FgHiMagenta,
-	"FGHICYAN":     color.FgHiCyan,
-	"FGHIWHITE":    color.FgHiWhite,
-	"BGBLACK":      color.BgBlack,
-	"BGRED":        color.BgRed,
-	"BGGREEN":      color.BgGreen,
-	"BGYELLOW":     color.BgYellow,
-	"BGBLUE":       color.BgBlue,
-	"BGMAGENTA":    color.BgMagenta,
-	"BGCYAN":       color.BgCyan,
-	"BGWHITE":      color.BgWhite,
-	"BGHIBLACK":    color.BgHiBlack,
-	"BGHIRED":      color.BgHiRed,
-	"BGHIGREEN":    color.BgHiGreen,
-	"BGHIYELLOW":   color.BgHiYellow,
-	"BGHIBLUE":     color.BgHiBlue,
-	"BGHIMAGENTA":  color.BgHiMagenta,
-	"BGHICYAN":     color.BgHiCyan,
-	"BGHIWHITE":    color.BgHiWhite,
-	"REVERSEVIDEO": color.ReverseVideo,
-}
-
-var diagMode *bool
-var listColorMode *bool
-var clearMode *bool
-
-func init() {
-	diagMode = flag.Bool("diag", false, "display diagnostic information, if provided.")
-	listColorMode = flag.Bool("listcolors", false, "show supported color attributes.")
-	clearMode = flag.Bool("clear", false, "eval code to clear set dashlights.")
+var args struct {
+	ObdMode   bool `arg:"-d,--obd,help:On-Board Diagnostics: display diagnostic info if provided."`
+	ListMode  bool `arg:"-l,--list,help:List supported color attributes."`
+	ClearMode bool `arg:"-c,--clear,help:Shell code to clear set dashlights."`
 }
 
 func flexPrintf(w io.Writer, format string, args ...interface{}) {
@@ -80,28 +39,14 @@ func displayClearCodes(w io.Writer, lights *[]dashlight) {
 	}
 }
 
-func displayColorList(w io.Writer) {
-	keys := make([]string, 0)
-	for k := range colorMap {
-		keys = append(keys, k)
-	}
-	sizeKeys := len(keys)
-	sort.Strings(keys)
-	flexPrintln(w, "Supported color attributes:")
-	for i, attrib := range keys {
-		flexPrintf(w, "%s", attrib)
-		if i < sizeKeys-1 {
-			flexPrintf(w, "%s", ", ")
-		}
-	}
-	flexPrintln(w, "")
-}
-
 var lights []dashlight
 
-func main() {
-	flag.Parse()
+func init() {
 	parseEnviron(os.Environ(), &lights)
+}
+
+func main() {
+	arg.MustParse(&args)
 	display(os.Stdout, &lights)
 }
 
@@ -112,16 +57,16 @@ func parseEnviron(environ []string, lights *[]dashlight) {
 }
 
 func display(w io.Writer, lights *[]dashlight) {
-	if *listColorMode {
+	if args.ListMode {
 		displayColorList(w)
 		return
 	}
-	if *clearMode {
+	if args.ClearMode {
 		displayClearCodes(w, lights)
 		return
 	}
 	displayDashlights(w, lights)
-	if *diagMode {
+	if args.ObdMode {
 		displayDiagnostics(w, lights)
 	}
 }
