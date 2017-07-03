@@ -10,13 +10,13 @@ echo "$ ./dashlights"
 ./dashlights
 
 echo
-echo "$ ./dashlights -diag"
-./dashlights -diag
+echo "$ ./dashlights --obd"
+./dashlights --obd
 
 echo
-echo "$ ./dashlights -clear"
-./dashlights -clear
+echo "$ ./dashlights --clear"
+./dashlights --clear
 
 echo
-echo "$ ./dashlights -listcolors"
-./dashlights -listcolors
+echo "$ ./dashlights --list"
+./dashlights --list
